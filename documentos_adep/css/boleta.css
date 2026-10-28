@@ -1,0 +1,206 @@
+/* ==========================================================
+   boleta.css · Plantilla impresa «Boleta para horas extras»
+   ----------------------------------------------------------
+   La hoja mide EXACTAMENTE tamaño carta (215,9 × 279,4 mm) y
+   todo se posiciona con milímetros, medidos desde la foto de
+   la boleta física. La vista previa y el PDF salen de esta
+   misma hoja, por eso siempre coinciden.
+
+   Cómo está organizado:
+   1. Fuente incluida en el proyecto
+   2. Hoja y medidas generales (aquí se ajusta tamaño de letra)
+   3. Elementos fijos (logo, título, recuadro, nota, línea final)
+   4. Filas del formulario (etiqueta + línea para completar)
+   5. Impresión (@page y @media print)
+   ========================================================== */
+
+/* ---------- 1. Fuente ----------
+   Liberation Sans: mismas medidas que Arial y licencia libre.
+   Así el PDF se ve igual en cualquier computadora. */
+@font-face {
+  font-family: "BoletaSans";
+  src: url("../assets/fonts/LiberationSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "BoletaSans";
+  src: url("../assets/fonts/LiberationSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+/* ---------- 2. Hoja y medidas generales ---------- */
+.hoja {
+  /* Tamaños de letra (calibrados con la foto) */
+  --fs-etq: 10.75pt;    /* etiquetas y datos */
+  --fs-titulo: 12.8pt;  /* «Boleta para horas Extras» */
+  --fs-nota: 13.1pt;    /* nota en negrita */
+  /* Grosor de las líneas */
+  --grosor-linea: 0.3mm;
+
+  position: relative;
+  width: 215.9mm;
+  height: 279.4mm;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  font-family: "BoletaSans", "Liberation Sans", Arial, Helvetica, sans-serif;
+  font-size: var(--fs-etq);
+  line-height: 1;
+  transform-origin: top left;
+}
+
+/* ---------- 3. Elementos fijos ---------- */
+.b-logo {
+  position: absolute;
+  left: 25.1mm;
+  top: 30.8mm;
+  width: 20mm;
+  height: 20mm;
+}
+
+.b-titulo {
+  position: absolute;
+  left: 80.7mm;
+  top: 38.1mm;          /* centro vertical a 41,6 mm */
+  height: 7mm;
+  line-height: 7mm;
+  font-size: var(--fs-titulo);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Recuadro de la esquina superior derecha (uso por definir) */
+.b-cuadro {
+  position: absolute;
+  left: 170.2mm;
+  top: 37.8mm;
+  width: 17.1mm;
+  height: 17.1mm;
+  border: 0.7mm solid #000;
+  box-sizing: border-box;
+}
+
+.b-nota {
+  position: absolute;
+  left: 30.1mm;
+  top: 169.4mm;         /* centro vertical a 172,4 mm */
+  height: 6mm;
+  line-height: 6mm;
+  font-size: var(--fs-nota);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Línea horizontal que marca el final del formulario */
+.b-final {
+  position: absolute;
+  left: 9.9mm;
+  top: 182.6mm;
+  width: 197.8mm;
+  border-top: 0.45mm solid #000;
+}
+
+/* ---------- 4. Filas del formulario ----------
+   Cada fila define --ul: la altura (desde arriba de la hoja)
+   de su línea de escribir. Todo lo demás se calcula desde ahí. */
+.f1 { --ul: 63.0mm; }
+.f2 { --ul: 76.8mm; }
+.f3 { --ul: 90.6mm; }
+.f4 { --ul: 104.4mm; }
+.f5 { --ul: 118.2mm; }
+.f6 { --ul: 132.0mm; }
+.f7 { --ul: 145.8mm; }
+.f8 { --ul: 159.6mm; }
+
+/* Etiqueta impresa («Puesto:», «Fecha:», ...) */
+.b-etq {
+  position: absolute;
+  left: 30.1mm;
+  top: calc(var(--ul) - 4.5mm);
+  height: 5mm;
+  line-height: 5mm;
+  white-space: nowrap;
+}
+.b-etq--fin { left: 89.8mm; }   /* «Hora de Finalización», al lado de la hora de inicio */
+
+/* Línea para escribir (base común de datos y firmas) */
+.b-linea {
+  position: absolute;
+  top: calc(var(--ul) - 5mm);
+  height: 5mm;
+  box-sizing: border-box;
+  border-bottom: var(--grosor-linea) solid #000;
+}
+
+/* Línea con un dato escrito encima */
+.b-campo {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0.8mm 0.5mm;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.b-campo__texto { display: inline-block; }
+
+/* Posición y largo de cada línea (en mm, medidos de la foto) */
+.f1 .b-linea { left: 56.5mm;  width: 84.6mm; }   /* Funcionario (a) */
+.f2 .b-linea { left: 42.8mm;  width: 58.8mm; }   /* Puesto */
+.f3 .b-linea { left: 61.6mm;  width: 74.2mm; }   /* Trabajo a realizar */
+.f4 .b-linea { left: 50.8mm;  width: 148.4mm; }  /* Justificación */
+.f5 .b-linea { left: 42.2mm;  width: 33.3mm; }   /* Fecha */
+.f6 .b-linea--inicio { left: 54.6mm;  width: 32.0mm; }  /* Hora de Inicio */
+.f6 .b-linea--fin    { left: 124.6mm; width: 31.8mm; }  /* Hora de Finalización */
+.f7 .b-linea { left: 79.3mm;  width: 63.3mm; }   /* Firma: Jefe Inmediato (queda vacía) */
+.f8 .b-linea { left: 70.0mm;  width: 70.0mm; }   /* Firma: Tesorería (queda vacía) */
+
+/* Foto de referencia: solo existe en modo calibración (?calibrar) */
+.b-foto-ref {
+  position: absolute;
+  left: -6.3mm;
+  top: -14.3mm;
+  width: 228.3mm;
+  height: 318.2mm;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ---------- 5. Impresión ----------
+   Al imprimir se oculta todo el sistema y queda solo la hoja,
+   a tamaño real, sin márgenes del navegador. */
+@page {
+  size: letter portrait;
+  margin: 0;
+}
+
+@media print {
+  html, body { background: #fff; }
+
+  .encabezado,
+  .pantalla h1,
+  .editor__formulario,
+  .editor__vista h2,
+  .barra-acciones,
+  .ayuda-pdf,
+  .calibracion,
+  .b-foto-ref { display: none !important; }
+
+  .contenedor { max-width: none; margin: 0; padding: 0; }
+  .editor { display: block; margin: 0; }
+  .editor__vista { padding: 0; border: 0; background: none; }
+
+  .boleta-escala {
+    width: 215.9mm !important;
+    height: 279.4mm !important;
+    overflow: hidden;
+  }
+  .hoja {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
