@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADEP · Documentos</title>
+  <meta name="theme-color" content="#05591f">
+  <meta name="description" content="Documentos institucionales de ADEP.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/boleta.css">
 </head>
@@ -27,11 +32,16 @@
       <h1 id="titulo-inicio">Sistema de documentos</h1>
       <p class="texto-guia">
         Complete sus documentos institucionales desde aquí, sin tener que desplazarse a la oficina.
-        Al terminar podrá descargar el PDF, imprimirlo o compartirlo con su jefatura.
+        Guarde sus documentos en este dispositivo y vuelva a consultarlos cuando lo necesite.
       </p>
       <button type="button" class="boton boton--principal" data-ir="pantalla-plantillas">
         Crear documento
       </button>
+
+      <section class="documentos-guardados" aria-labelledby="titulo-guardados">
+        <h2 id="titulo-guardados">Documentos guardados</h2>
+        <div id="lista-documentos" class="lista-documentos" aria-live="polite"></div>
+      </section>
     </section>
 
     <!-- PANTALLA 2: ELEGIR PLANTILLA -->
@@ -187,21 +197,36 @@
 
       <div class="barra-acciones">
         <button type="button" class="boton boton--secundario" data-ir="pantalla-plantillas">Volver</button>
+        <button type="button" id="btn-guardar" class="boton boton--secundario">Guardar</button>
         <button type="button" id="btn-descargar" class="boton boton--principal">Descargar PDF</button>
         <button type="button" id="btn-imprimir" class="boton boton--secundario">Imprimir</button>
       </div>
       <p class="ayuda-pdf">
-        Para guardar el PDF: pulse «Descargar PDF» y, en la ventana que se abre,
-        elija «Guardar como PDF» como destino.
+        El PDF se descargará directamente en este dispositivo.
       </p>
     </section>
 
   </main>
 
+  <footer class="pie-app">
+    <button type="button" class="boton-instalar" id="btn-instalar">
+      <svg class="boton-instalar__icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7 8.5a5 5 0 0 1 10 0V15H7V8.5Zm-2 1a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Zm14 0a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1ZM8 16h8v3a1 1 0 0 1-1 1h-1v-3h-1v3h-1v-3h-1v3h-1a1 1 0 0 1-1-1v-3Zm.4-9.2L7.3 5.1l.9-.5 1.1 1.8a5.8 5.8 0 0 1 5.4 0l1.1-1.8.9.5-1.1 1.7H8.4Z"/>
+        <circle cx="10" cy="9" r=".65"/>
+        <circle cx="14" cy="9" r=".65"/>
+      </svg>
+      <span>Descargar aquí</span>
+    </button>
+    <p class="pie-app__estado" id="estado-instalacion" aria-live="polite"></p>
+  </footer>
+
+  <script src="js/vendor/html2canvas.min.js"></script>
+  <script src="js/vendor/jspdf.umd.min.js"></script>
   <script src="js/app.js"></script>
   <script src="js/boleta.js"></script>
   <script src="js/selector.js"></script>
   <script src="js/pdf.js"></script>
   <script src="js/calibracion.js"></script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>

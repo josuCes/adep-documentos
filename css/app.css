@@ -69,6 +69,40 @@ h2 { margin: 0 0 12px; font-size: 1.1rem; }
   color: var(--texto-suave);
 }
 
+.documentos-guardados { margin-top: 32px; }
+.documentos-guardados h2 { margin-bottom: 12px; }
+.lista-documentos { display: grid; gap: 10px; }
+.lista-documentos__vacio { margin: 0; color: var(--texto-suave); }
+.documento-guardado {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.documento-guardado__preview {
+  display: block;
+  flex: 0 0 190px;
+  width: 190px;
+  aspect-ratio: 1.55;
+  align-self: center;
+  object-fit: contain;
+  background: #e4e8e5;
+  border: 1px solid var(--borde);
+}
+.documento-guardado__info { min-width: 0; }
+.documento-guardado__info { flex: 1; align-self: center; }
+.documento-guardado__titulo { margin: 0 0 4px; font-size: 1rem; }
+.documento-guardado__detalle,
+.documento-guardado__trabajo,
+.documento-guardado__fecha { margin: 2px 0 0; color: var(--texto-suave); font-size: 0.88rem; }
+.documento-guardado__trabajo { color: var(--texto); }
+.documento-guardado__acciones { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+.boton--texto { padding: 8px 10px; border: 0; background: transparent; color: #a32121; }
+.boton--texto:hover { text-decoration: underline; }
+
 /* ---------- Botones ---------- */
 .boton {
   font: inherit;
@@ -331,7 +365,41 @@ h2 { margin: 0 0 12px; font-size: 1.1rem; }
   color: var(--texto-suave);
 }
 
+.pie-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 20px 30px;
+  border-top: 1px solid var(--borde);
+  background: var(--superficie);
+}
+.boton-instalar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--verde);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.boton-instalar:hover { background: var(--verde-oscuro); }
+.boton-instalar:focus-visible { outline: 3px solid var(--rojo); outline-offset: 3px; }
+.boton-instalar__icono { width: 24px; height: 24px; fill: currentColor; }
+.pie-app__estado { min-height: 1.25em; margin: 0; color: var(--texto-suave); font-size: 0.82rem; text-align: center; }
+
 /* En pantallas pequeñas, la vista previa pasa debajo del formulario */
 @media (max-width: 800px) {
   .editor { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .documento-guardado { align-items: stretch; flex-direction: column; }
+  .documento-guardado__preview { width: 100%; max-width: 320px; flex-basis: auto; align-self: flex-start; }
+  .documento-guardado__acciones { width: 100%; }
 }
