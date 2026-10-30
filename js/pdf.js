@@ -45,9 +45,10 @@
       var pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "letter", compress: true });
       pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 215.9, 139.7, undefined, "FAST");
       pdf.save(nombreSugerido());
+      await window.dialogosApp.aviso("PDF descargado", "La boleta se descargó en este dispositivo.");
     } catch (error) {
       console.error("No se pudo generar el PDF:", error);
-      window.alert("No se pudo generar el PDF. Inténtelo de nuevo.");
+      await window.dialogosApp.aviso("No se pudo descargar", "Inténtalo de nuevo. Si el problema continúa, usa el botón Imprimir.");
     } finally {
       copia.remove();
       boton.disabled = false;

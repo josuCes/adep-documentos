@@ -56,11 +56,19 @@
     var tipo = contenedor.getAttribute("data-tipo");
     var oculto = contenedor.querySelector('input[type="hidden"]');
     var boton = contenedor.querySelector(".selector__boton");
+    var manual = tipo === "hora" ? contenedor.querySelector("[data-hora-manual]") : null;
+    var avisoManual = manual ? document.getElementById(manual.getAttribute("aria-describedby")) : null;
     var panel = null;
 
     function valor() { return oculto.value; }
 
     function pintarBoton() {
+      if (manual) {
+        manual.value = valor();
+        boton.textContent = valor() ? "Cambiar" : boton.getAttribute("data-vacio");
+        boton.classList.toggle("selector__boton--vacio", !valor());
+        return;
+      }
       var t = tipo === "fecha" ? textoFecha(valor())
             : tipo === "hora"  ? textoHora(valor())
             : valor();                                  // lista: se muestra la opción elegida
@@ -72,6 +80,36 @@
       oculto.value = nuevo;
       pintarBoton();
       // Avisa al formulario (boleta.js escucha "input" en el formulario)
+      oculto.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function procesarHoraManual() {
+      var digitos = manual.value.replace(/\D/g, "").slice(0, 4);
+      manual.value = digitos.length > 2 ? digitos.slice(0, 2) + ":" + digitos.slice(2) : digitos;
+
+      if (digitos.length !== 4) {
+        oculto.value = "";
+        var incompleta = digitos.length > 0 && document.activeElement !== manual;
+        manual.setAttribute("aria-invalid", incompleta ? "true" : "false");
+        if (avisoManual) { avisoManual.hidden = !incompleta; }
+        boton.textContent = boton.getAttribute("data-vacio");
+        boton.classList.add("selector__boton--vacio");
+        oculto.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+      }
+
+      var horas = parseInt(digitos.slice(0, 2), 10);
+      var minutos = parseInt(digitos.slice(2), 10);
+      var valida = horas <= 23 && minutos <= 59;
+      manual.setAttribute("aria-invalid", valida ? "false" : "true");
+      if (avisoManual) { avisoManual.hidden = valida; }
+      oculto.value = valida ? dos(horas) + ":" + dos(minutos) : "";
+      if (valida) {
+        pintarBoton();
+      } else {
+        boton.textContent = boton.getAttribute("data-vacio");
+        boton.classList.add("selector__boton--vacio");
+      }
       oculto.dispatchEvent(new Event("input", { bubbles: true }));
     }
 
@@ -274,6 +312,11 @@
         abrir();
       }
     });
+
+    if (manual) {
+      manual.addEventListener("input", procesarHoraManual);
+      manual.addEventListener("blur", procesarHoraManual);
+    }
 
     if (tipo === "lista") { boton.classList.add("selector__boton--lista"); }   // muestra la flechita ▾
     pintarBoton();

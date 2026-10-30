@@ -54,9 +54,101 @@
           <span class="tarjeta__titulo">Boleta para horas extras</span>
           <span class="tarjeta__texto">Solicitud de autorización de horas extras.</span>
         </button>
+        <button type="button" class="tarjeta tarjeta--nueva" id="crear-plantilla" aria-label="Crear una plantilla nueva">
+          <span class="tarjeta__mas" aria-hidden="true">+</span>
+          <span class="tarjeta__titulo">Crear plantilla</span>
+          <span class="tarjeta__texto">Diseña un formato propio y guárdalo para volver a usarlo.</span>
+        </button>
       </div>
+      <section class="plantillas-personalizadas" aria-labelledby="titulo-plantillas-personalizadas">
+        <h2 id="titulo-plantillas-personalizadas">Mis plantillas</h2>
+        <div class="tarjetas" id="lista-plantillas-personalizadas"></div>
+      </section>
 
       <button type="button" class="boton boton--secundario" data-ir="pantalla-inicio">Volver</button>
+    </section>
+
+    <section id="pantalla-crear-plantilla" class="pantalla" aria-labelledby="titulo-crear-plantilla">
+      <h1 id="titulo-crear-plantilla">Diseñar plantilla</h1>
+      <p class="texto-guia">Elige el papel, agrega los elementos en orden y guarda el molde para reutilizarlo.</p>
+      <form id="formulario-plantilla" class="creador-plantilla" autocomplete="off">
+        <div class="editor__formulario">
+          <div class="campo-form">
+            <label for="nombre-plantilla">Nombre de la plantilla</label>
+            <input id="nombre-plantilla" type="text" maxlength="60" required placeholder="Ej. Solicitud de permiso">
+          </div>
+          <fieldset class="selector-papel">
+            <legend>Tamaño del documento</legend>
+            <label><input type="radio" name="papel-plantilla" value="media" checked> Media hoja · un molde</label>
+            <label><input type="radio" name="papel-plantilla" value="duplicado"> Media hoja · dos copias</label>
+            <label><input type="radio" name="papel-plantilla" value="carta"> Hoja completa · carta</label>
+          </fieldset>
+          <fieldset class="opciones-logo">
+            <legend>Logotipo ADEP</legend>
+            <label for="tamano-logo">Tamaño</label>
+            <select id="tamano-logo">
+              <option value="pequeno">Pequeño</option>
+              <option value="mediano" selected>Mediano</option>
+              <option value="grande">Grande</option>
+            </select>
+            <label for="posicion-logo">Ubicación</label>
+            <select id="posicion-logo">
+              <option value="izquierda">Esquina superior izquierda</option>
+              <option value="derecha">Esquina superior derecha</option>
+              <option value="fondo">Fondo transparente</option>
+            </select>
+          </fieldset>
+          <div class="campo-form campo-form--agregar-bloque">
+            <label for="tipo-bloque">Agregar elemento</label>
+            <div class="agregar-bloque">
+              <select id="tipo-bloque">
+                <option value="titulo">Título</option>
+                <option value="subtitulo">Subtítulo</option>
+                <option value="texto">Texto para completar</option>
+                <option value="linea">Campo con raya</option>
+                <option value="doble">Dos campos: izquierda y derecha</option>
+              </select>
+              <button type="button" class="boton boton--principal" id="agregar-bloque">+ Agregar</button>
+            </div>
+            <p id="aviso-limite-bloques" class="form-aviso" aria-live="polite"></p>
+          </div>
+          <div id="lista-bloques-plantilla" class="lista-bloques" aria-live="polite"></div>
+        </div>
+        <div class="editor__vista">
+          <h2>Vista previa del molde</h2>
+          <div class="vista-personalizada-contenedor vista-personalizada-contenedor--molde" id="vista-molde-contenedor">
+            <div id="vista-plantilla-creador"></div>
+          </div>
+          <p class="texto-guia">La nota no se agrega al molde; el borde inferior marca el final de la hoja.</p>
+        </div>
+        <div class="barra-acciones">
+          <button type="button" class="boton boton--secundario" data-ir="pantalla-plantillas">Cancelar</button>
+          <button type="submit" class="boton boton--principal" id="guardar-plantilla">Guardar plantilla</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="pantalla-editor-personalizada" class="pantalla" aria-labelledby="titulo-documento-personalizado">
+      <h1 id="titulo-documento-personalizado">Completar documento</h1>
+      <div class="editor">
+        <div class="editor__formulario">
+          <h2 id="nombre-documento-personalizado">Datos del documento</h2>
+          <form id="formulario-documento-personalizado" autocomplete="off"></form>
+        </div>
+        <div class="editor__vista">
+          <h2>Vista previa</h2>
+          <div class="vista-personalizada-contenedor" id="vista-personalizada-contenedor">
+            <div id="vista-personalizada"></div>
+          </div>
+        </div>
+      </div>
+      <div class="barra-acciones">
+        <button type="button" class="boton boton--secundario" data-ir="pantalla-plantillas">Volver</button>
+        <button type="button" class="boton boton--secundario" id="guardar-documento-personalizado">Guardar</button>
+        <button type="button" class="boton boton--principal" id="descargar-documento-personalizado">Descargar PDF</button>
+        <button type="button" class="boton boton--secundario" id="imprimir-documento-personalizado">Imprimir</button>
+      </div>
+      <p class="ayuda-pdf">El documento se descargará en una sola página tamaño carta.</p>
     </section>
 
     <!-- PANTALLA 3: COMPLETAR Y REVISAR -->
@@ -70,6 +162,18 @@
         <div class="editor__formulario">
           <h2>Datos del documento</h2>
           <form id="formulario-boleta" autocomplete="off" novalidate>
+
+            <fieldset class="opciones-texto">
+              <legend>Tamaño de letra</legend>
+              <div class="opciones-texto__niveles" role="radiogroup" aria-label="Tamaño de letra de los datos">
+                <label><input type="radio" name="texto-tamano" value="muy-pequeno"> Muy pequeño</label>
+                <label><input type="radio" name="texto-tamano" value="normal" checked> Normal</label>
+                <label><input type="radio" name="texto-tamano" value="grande"> Grande</label>
+                <label><input type="radio" name="texto-tamano" value="muy-grande"> Muy grande</label>
+              </div>
+              <label class="opciones-texto__negrita"><input type="checkbox" id="opcion-negrita"> Negrita</label>
+              <p>El texto se reduce automáticamente si no cabe en su línea.</p>
+            </fieldset>
 
             <div class="campo-form">
               <label for="in-funcionario">Funcionario (a)</label>
@@ -113,17 +217,21 @@
             <div class="campo-form campo-form--par">
               <div>
                 <label id="etq-inicio">Hora de inicio</label>
-                <div class="selector" data-tipo="hora">
+                <div class="selector selector--hora" data-tipo="hora">
                   <input type="hidden" id="in-inicio">
-                  <button type="button" class="selector__boton" aria-labelledby="etq-inicio" aria-haspopup="dialog" data-vacio="Elegir hora"></button>
+                  <input type="text" class="selector__hora-manual" data-hora-manual id="hora-manual-inicio" inputmode="numeric" maxlength="5" placeholder="HH:MM" aria-label="Escribir hora de inicio en formato de 24 horas" aria-describedby="aviso-inicio">
+                  <button type="button" class="selector__boton" aria-label="Abrir selector de hora de inicio" aria-haspopup="dialog" data-vacio="Elegir"></button>
                 </div>
+                <p class="form-aviso" id="aviso-inicio" hidden>Escriba cuatro dígitos válidos, por ejemplo 1630.</p>
               </div>
               <div>
                 <label id="etq-fin">Hora de finalización</label>
-                <div class="selector" data-tipo="hora">
+                <div class="selector selector--hora" data-tipo="hora">
                   <input type="hidden" id="in-fin">
-                  <button type="button" class="selector__boton" aria-labelledby="etq-fin" aria-haspopup="dialog" data-vacio="Elegir hora"></button>
+                  <input type="text" class="selector__hora-manual" data-hora-manual id="hora-manual-fin" inputmode="numeric" maxlength="5" placeholder="HH:MM" aria-label="Escribir hora de finalización en formato de 24 horas" aria-describedby="aviso-fin">
+                  <button type="button" class="selector__boton" aria-label="Abrir selector de hora de finalización" aria-haspopup="dialog" data-vacio="Elegir"></button>
                 </div>
+                <p class="form-aviso" id="aviso-fin" hidden>Escriba cuatro dígitos válidos, por ejemplo 1630.</p>
               </div>
             </div>
 
@@ -140,7 +248,7 @@
           <h2>Vista previa</h2>
 
           <div class="boleta-escala" id="boleta-escala">
-            <div class="hoja" id="boleta">
+            <div class="hoja" id="boleta" role="button" tabindex="0" aria-label="Abrir vista final de la boleta">
 
               <img class="b-logo" src="assets/adep-logo-boleta.png" alt="Logotipo de ADEP">
               <div class="b-titulo">Boleta para horas Extras</div>
@@ -208,21 +316,51 @@
 
   </main>
 
+  <dialog id="dialogo-vista-previa" class="dialogo-vista-previa" aria-label="Vista final de la boleta">
+    <div class="dialogo-vista-previa__cabecera">
+      <h2>Vista final</h2>
+      <button type="button" class="dialogo-vista-previa__cerrar" id="cerrar-vista-previa" aria-label="Cerrar vista final">&times;</button>
+    </div>
+    <div class="dialogo-vista-previa__controles" role="group" aria-label="Controles de ampliación">
+      <button type="button" class="dialogo-vista-previa__zoom" id="alejar-vista-previa" aria-label="Alejar">−</button>
+      <output class="dialogo-vista-previa__nivel" id="nivel-vista-previa" aria-live="off">100%</output>
+      <button type="button" class="dialogo-vista-previa__zoom" id="acercar-vista-previa" aria-label="Acercar">+</button>
+      <button type="button" class="dialogo-vista-previa__ajustar" id="ajustar-vista-previa" aria-label="Ajustar la hoja a la pantalla">Ajustar</button>
+    </div>
+    <p class="dialogo-vista-previa__ayuda">Usa +/− o pellizca para ampliar; arrastra para recorrer.</p>
+    <div class="dialogo-vista-previa__area" id="area-vista-previa">
+      <div class="dialogo-vista-previa__escala" id="escala-vista-previa"></div>
+    </div>
+  </dialog>
+
+  <dialog id="dialogo-app" class="dialogo-app" aria-labelledby="dialogo-titulo" aria-describedby="dialogo-mensaje">
+    <form method="dialog" class="dialogo-app__contenido">
+      <h2 id="dialogo-titulo"></h2>
+      <p id="dialogo-mensaje"></p>
+      <div class="dialogo-app__acciones">
+        <button type="submit" class="boton boton--secundario" id="dialogo-cancelar" value="cancelar">Cancelar</button>
+        <button type="submit" class="boton boton--principal" id="dialogo-aceptar" value="aceptar">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
   <footer class="pie-app">
-    <button type="button" class="boton-instalar" id="btn-instalar">
+    <button type="button" class="boton-instalar" id="btn-instalar" aria-label="Descargar aquí e instalar la aplicación">
       <svg class="boton-instalar__icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M7 8.5a5 5 0 0 1 10 0V15H7V8.5Zm-2 1a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1Zm14 0a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0v-3a1 1 0 0 0-1-1ZM8 16h8v3a1 1 0 0 1-1 1h-1v-3h-1v3h-1v-3h-1v3h-1a1 1 0 0 1-1-1v-3Zm.4-9.2L7.3 5.1l.9-.5 1.1 1.8a5.8 5.8 0 0 1 5.4 0l1.1-1.8.9.5-1.1 1.7H8.4Z"/>
         <circle cx="10" cy="9" r=".65"/>
         <circle cx="14" cy="9" r=".65"/>
       </svg>
-      <span>Descargar aquí</span>
     </button>
+    <span class="pie-app__etiqueta">Descargar aquí</span>
     <p class="pie-app__estado" id="estado-instalacion" aria-live="polite"></p>
   </footer>
 
   <script src="js/vendor/html2canvas.min.js"></script>
   <script src="js/vendor/jspdf.umd.min.js"></script>
+  <script src="js/dialogos.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/plantillas.js"></script>
   <script src="js/boleta.js"></script>
   <script src="js/selector.js"></script>
   <script src="js/pdf.js"></script>

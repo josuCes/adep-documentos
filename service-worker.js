@@ -1,4 +1,4 @@
-var CACHE_ACTUAL = "adep-app-v2";
+var CACHE_ACTUAL = "adep-app-v7";
 var RECURSOS = [
   "./",
   "./index.html",
@@ -6,11 +6,13 @@ var RECURSOS = [
   "./css/app.css",
   "./css/boleta.css",
   "./js/app.js",
+  "./js/plantillas.js",
   "./js/boleta.js",
   "./js/selector.js",
   "./js/pdf.js",
   "./js/calibracion.js",
   "./js/pwa.js",
+  "./js/dialogos.js",
   "./js/vendor/html2canvas.min.js",
   "./js/vendor/jspdf.umd.min.js",
   "./assets/adep-logo-boleta.png",

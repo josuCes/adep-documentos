@@ -19,6 +19,13 @@
   });
 
   boton.addEventListener("click", async function () {
+    var continuar = await window.dialogosApp.confirmar(
+      "¿Instalar ADEP?",
+      "Se añadirá la aplicación a este dispositivo. Tus documentos guardados se quedarán aquí.",
+      "Instalar"
+    );
+    if (!continuar) { return; }
+
     if (eventoInstalacion) {
       eventoInstalacion.prompt();
       var resultado = await eventoInstalacion.userChoice;
@@ -29,7 +36,10 @@
       return;
     }
 
-    estado.textContent = "En Chrome, abre el menú ⋮ y elige «Instalar aplicación» o «Añadir a pantalla de inicio».";
+    await window.dialogosApp.aviso(
+      "Instala ADEP desde Chrome",
+      "Abre el menú ⋮ y elige «Instalar aplicación» o «Añadir a pantalla de inicio». No se descargará un APK."
+    );
   });
 
   window.addEventListener("appinstalled", function () {

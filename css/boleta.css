@@ -134,6 +134,12 @@
   white-space: nowrap;
 }
 .b-campo__texto { display: inline-block; }
+.b-campo__texto { font-size: calc(var(--fs-etq) * var(--escala-datos, 1)); }
+.hoja.datos--muy-pequeno { --escala-datos: 0.82; }
+.hoja.datos--normal { --escala-datos: 1; }
+.hoja.datos--grande { --escala-datos: 1.15; }
+.hoja.datos--muy-grande { --escala-datos: 1.3; }
+.hoja.datos--negrita .b-campo__texto { font-weight: 700; }
 
 /* Posición y largo de cada línea (en mm, medidos de la foto) */
 .f1 .b-linea { left: 56.5mm;  width: 84.6mm; }   /* Funcionario (a) */

@@ -118,13 +118,15 @@
       imagen.alt = documento.miniatura ? "Vista previa de la boleta guardada" : "Logotipo de ADEP";
       articulo.appendChild(imagen);
       var informacion = crearElemento("div", "documento-guardado__info");
-      var titulo = documento.datos.funcionario || "Boleta para horas extras";
-      var detalle = [documento.datos.area, textoFecha(documento.datos.fecha)].filter(Boolean).join(" · ");
+      var titulo = documento.nombre || documento.datos.funcionario || "Boleta para horas extras";
+      var detalle = documento.tipo === "personalizada"
+        ? "Plantilla: " + (documento.nombrePlantilla || "Personalizada")
+        : [documento.datos.area, textoFecha(documento.datos.fecha)].filter(Boolean).join(" · ");
       var fechaGuardado = new Date(documento.actualizado || documento.creado).toLocaleString("es-CR");
 
       informacion.appendChild(crearElemento("h3", "documento-guardado__titulo", titulo));
       informacion.appendChild(crearElemento("p", "documento-guardado__detalle", detalle));
-      if (documento.datos.trabajo) {
+      if (documento.datos && documento.datos.trabajo) {
         informacion.appendChild(crearElemento("p", "documento-guardado__trabajo", documento.datos.trabajo));
       }
       informacion.appendChild(crearElemento("p", "documento-guardado__fecha", "Guardado: " + fechaGuardado));
@@ -157,18 +159,49 @@
       boton.textContent = boton.getAttribute("data-vacio");
       boton.classList.add("selector__boton--vacio");
     });
+    document.querySelectorAll("[data-hora-manual]").forEach(function (entrada) {
+      entrada.value = "";
+      entrada.setAttribute("aria-invalid", "false");
+      var aviso = document.getElementById(entrada.getAttribute("aria-describedby"));
+      if (aviso) { aviso.hidden = true; }
+    });
+    document.querySelector('input[name="texto-tamano"][value="normal"]').checked = true;
+    document.getElementById("opcion-negrita").checked = false;
+    aplicarEstiloTexto();
     emitirActualizacion();
   }
 
-  function actualizarBotonSelector(id, texto) {
-    var boton = document.getElementById(id).parentElement.querySelector(".selector__boton");
+  function actualizarBotonSelector(id, texto, valorManual) {
+    var entrada = document.getElementById(id);
+    var boton = entrada.parentElement.querySelector(".selector__boton");
     boton.textContent = texto || boton.getAttribute("data-vacio");
     boton.classList.toggle("selector__boton--vacio", !texto);
+    var manual = entrada.parentElement.querySelector("[data-hora-manual]");
+    if (manual) {
+      manual.value = valorManual || "";
+      manual.setAttribute("aria-invalid", "false");
+      var aviso = document.getElementById(manual.getAttribute("aria-describedby"));
+      if (aviso) { aviso.hidden = true; }
+    }
+  }
+
+  function aplicarEstiloTexto() {
+    var hoja = document.getElementById("boleta");
+    var tamano = document.querySelector('input[name="texto-tamano"]:checked').value;
+    ["muy-pequeno", "normal", "grande", "muy-grande"].forEach(function (nivel) {
+      hoja.classList.toggle("datos--" + nivel, nivel === tamano);
+    });
+    hoja.classList.toggle("datos--negrita", document.getElementById("opcion-negrita").checked);
+    emitirActualizacion();
   }
 
   function abrirDocumento(id) {
     var documento = leerDocumentos().find(function (item) { return item.id === id; });
     if (!documento) { return; }
+    if (documento.tipo === "personalizada") {
+      if (window.adepPlantillas) { window.adepPlantillas.abrirDocumento(documento); }
+      return;
+    }
     documentoActualId = documento.id;
     Object.keys(documento.datos).forEach(function (campo) {
       var entrada = document.getElementById("in-" + campo);
@@ -178,11 +211,38 @@
     actualizarBotonSelector("in-fecha", textoFecha(documento.datos.fecha) === "Sin fecha" ? "" : textoFecha(documento.datos.fecha));
     var horaInicio = documento.datos.inicio || "";
     var horaFin = documento.datos.fin || "";
-    actualizarBotonSelector("in-inicio", formatearHora(horaInicio));
-    actualizarBotonSelector("in-fin", formatearHora(horaFin));
+    actualizarBotonSelector("in-inicio", formatearHora(horaInicio), horaInicio);
+    actualizarBotonSelector("in-fin", formatearHora(horaFin), horaFin);
+    var tamano = documento.datos.textoTamano || (documento.datos.textoGrande ? "grande" : "normal");
+    var opcionTamano = document.querySelector('input[name="texto-tamano"][value="' + tamano + '"]')
+      || document.querySelector('input[name="texto-tamano"][value="normal"]');
+    opcionTamano.checked = true;
+    document.getElementById("opcion-negrita").checked = !!documento.datos.negrita;
+    aplicarEstiloTexto();
     mostrarPantalla("pantalla-editor");
     window.requestAnimationFrame(emitirActualizacion);
   }
+
+  window.adepDocumentos = {
+    guardar: function (documento) {
+      var documentos = documentosActuales.filter(function (item) { return item.id !== documento.id; });
+      documentos.push(documento);
+      return guardarEnBase(documento).then(function () {
+        documentosActuales = documentos;
+        localStorage.removeItem(CLAVE_DOCUMENTOS);
+        pintarDocumentos();
+      }).catch(function (error) {
+        try {
+          localStorage.setItem(CLAVE_DOCUMENTOS, JSON.stringify(documentos));
+          documentosActuales = documentos;
+          pintarDocumentos();
+        } catch (errorLocal) {
+          console.error("No se pudo guardar el documento:", error, errorLocal);
+          throw errorLocal;
+        }
+      });
+    }
+  };
 
   function formatearHora(valor) {
     var m = /^(\d{1,2}):(\d{2})$/.exec(valor || "");
@@ -209,6 +269,11 @@
     copia.style.position = "fixed";
     copia.style.left = "-10000px";
     copia.style.top = "0";
+    var tamano = datos.textoTamano || (datos.textoGrande ? "grande" : "normal");
+    ["muy-pequeno", "normal", "grande", "muy-grande"].forEach(function (nivel) {
+      copia.classList.toggle("datos--" + nivel, nivel === tamano);
+    });
+    copia.classList.toggle("datos--negrita", !!datos.negrita);
     copia.querySelectorAll(".b-foto-ref").forEach(function (foto) { foto.remove(); });
 
     var salidas = [
@@ -227,14 +292,14 @@
     document.body.appendChild(copia);
 
     return window.html2canvas(copia, {
-      scale: 0.45,
+      scale: 1,
       backgroundColor: "#ffffff",
       logging: false,
       width: copia.offsetWidth,
       height: copia.offsetHeight
     }).then(function (canvas) {
       copia.remove();
-      return canvas.toDataURL("image/jpeg", 0.72);
+      return canvas.toDataURL("image/jpeg", 0.88);
     }).catch(function (error) {
       copia.remove();
       console.error("No se pudo crear la vista previa:", error);
@@ -244,6 +309,19 @@
 
   async function guardarDocumento() {
     var botonGuardar = document.getElementById("btn-guardar");
+    var entradasHora = Array.prototype.slice.call(document.querySelectorAll("[data-hora-manual]"));
+    var horaInvalida = entradasHora.find(function (entrada) {
+      var idOculto = entrada.id === "hora-manual-inicio" ? "in-inicio" : "in-fin";
+      return entrada.value.trim() && !/^\d{2}:\d{2}$/.test(document.getElementById(idOculto).value);
+    });
+    if (horaInvalida) {
+      horaInvalida.setAttribute("aria-invalid", "true");
+      document.getElementById(horaInvalida.getAttribute("aria-describedby")).hidden = false;
+      horaInvalida.focus();
+      window.dialogosApp.aviso("Revisa la hora", "Escribe cuatro dígitos en formato de 24 horas, por ejemplo 1630 para las 4:30 p. m.");
+      return;
+    }
+
     botonGuardar.disabled = true;
     botonGuardar.textContent = "Guardando...";
     var ahora = new Date().toISOString();
@@ -254,7 +332,9 @@
       justificacion: document.getElementById("in-justificacion").value.trim(),
       fecha: document.getElementById("in-fecha").value,
       inicio: document.getElementById("in-inicio").value,
-      fin: document.getElementById("in-fin").value
+      fin: document.getElementById("in-fin").value,
+      textoTamano: document.querySelector('input[name="texto-tamano"]:checked').value,
+      negrita: document.getElementById("opcion-negrita").checked
     };
     var documento = documentosActuales.find(function (item) { return item.id === documentoActualId; });
 
@@ -287,7 +367,7 @@
         localStorage.setItem(CLAVE_DOCUMENTOS, JSON.stringify(respaldo));
         documentosActuales = respaldo;
       } catch (errorLocal) {
-        window.alert("No se pudo guardar. Compruebe el espacio disponible en el dispositivo.");
+        window.dialogosApp.aviso("No se pudo guardar", "Comprueba el espacio disponible en el dispositivo e inténtalo de nuevo.");
         botonGuardar.disabled = false;
         botonGuardar.textContent = "Guardar";
         return;
@@ -299,6 +379,7 @@
     botonGuardar.disabled = false;
     botonGuardar.textContent = "Guardar";
     mostrarPantalla("pantalla-inicio");
+    window.dialogosApp.aviso("Documento guardado", "La boleta quedó guardada en este dispositivo.");
   }
 
   // Muestra la pantalla con el id indicado y oculta las demás
@@ -316,7 +397,12 @@
   }
 
   // Un solo "oyente" para todos los botones de navegación
-  document.addEventListener("click", function (evento) {
+  document.querySelectorAll('input[name="texto-tamano"]').forEach(function (opcion) {
+    opcion.addEventListener("change", aplicarEstiloTexto);
+  });
+  document.getElementById("opcion-negrita").addEventListener("change", aplicarEstiloTexto);
+
+  document.addEventListener("click", async function (evento) {
     var boton = evento.target.closest("[data-ir]");
     if (boton) {
       if (boton.hasAttribute("data-plantilla")) { restablecerFormulario(); }
@@ -338,7 +424,8 @@
 
     var eliminar = evento.target.closest("[data-eliminar-documento]");
     if (eliminar) {
-      if (!window.confirm("¿Eliminar este documento guardado de este dispositivo?")) { return; }
+      var confirmar = await window.dialogosApp.confirmar("¿Eliminar documento?", "Este documento se quitará de este dispositivo. Esta acción no se puede deshacer.", "Eliminar");
+      if (!confirmar) { return; }
       var id = eliminar.getAttribute("data-eliminar-documento");
       eliminarDeBase(id).then(function () {
         documentosActuales = documentosActuales.filter(function (documento) { return documento.id !== id; });
